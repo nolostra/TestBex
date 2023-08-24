@@ -1,99 +1,89 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, } from 'react-native';
-import {check, PERMISSIONS, RESULTS, request} from 'react-native-permissions';
-import RNFileShareIntent from 'react-native-file-share-intent';
-// import { Share } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, Linking, PermissionsAndroid } from 'react-native';
+import DocumentPicker from 'react-native-document-picker';
+import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
-import  DocumentPicker from 'react-native-document-picker';
-
+import RNFS from 'react-native-fs';
+import files from './data'
 export default function SharingScreen() {
   const [fileUri, setFileUri] = useState('');
   const [message, setMessage] = useState('');
-  const requestReadExternalStorage = async () => {
-    try {
-      const granted = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE)
-      const granted2 = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
-      console.log(granted,granted2)
-      // if (
-      //   granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED &&
-      //   granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
-      // ) {
-      //   // The user has granted permissions, proceed with file picking and handling
-      //   // Your existing code here
-      // } else {
-      //   // The user denied one or both permissions
-      //   console.log('Permissions denied');
-      // }
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  useEffect(() => {
+    const requestExternalStoragePermission = async () => {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          {
+            title: 'External Storage Permission',
+            message: 'This app needs access to your external storage to convert the file to base64.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          convertToBase64();
+        } else {
+          console.log('Permission denied.');
+        }
+      } catch (error) {
+        console.error('Error requesting permission:', error);
+      }
+    };
 
+    requestExternalStoragePermission();
+  }, []);
   const handleFilePicker = async () => {
     try {
-      await  requestReadExternalStorage()
       const res = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.allFiles],
       });
-      console.log(res);
       
-      //output: content://com.android.providers.media.documents/document/image%3A4055
-    
-      RNFetchBlob.fs
-        .stat(res.uri)
-        .then(async (stats) => {
-          console.log("stats",stats);
-          console.log("file:/"+stats.path);
-          let path ="file:"+stats.path
-          console.log("path === ", path)
-          setFileUri(path);
-          // RNFetchBlob.fs.readFile(path,'base64') // You can specify other encoding types
-          // .then((fileData) => {
-          //   console.log(fileData);
-          //   setFileUri(path); // Here you have the file content
-          // })
-          // .catch((readErr) => {
-          //   console.log(readErr);
-          // });
-
-          const contents = await RNFS.readFile(fileUri, 'base64');
-          console.log(contents)
-
-          // setFileUri(stats.path);
-     //output: /storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200831-WA0019.jpg
-        })
-        .catch((err) => {
-          console.log(res[0].uri);
-          console.log(err);
-        })
-      
+      setFileUri(res.uri);
+      console.log(fileUri)
     } catch (error) {
       console.log('Error picking file:', error);
     }
   };
 
+
+  const getImageBase64 = async (filePath) => {
+    try {
+      const fileUri = decodeURIComponent(filePath);
+      console.log('fileUri',fileUri)
+      const response = await RNFetchBlob.fs.readFile(fileUri, 'base64');
+      console.log(response)
+      return response;
+    } catch (error) {
+      console.error('Error converting to base64:', error);
+      return null;
+    }
+  };
   const handleShare = async () => {
     if (!fileUri) {
       console.log('No file selected.');
       return;
     }
-  
-    const shareOptions = {
-      title: 'Share File and Message',
-      url: fileUri,
-      message: message,
-    };
-  
-    if (Platform.OS === 'android' && fileUri.startsWith('content://')) {
-      // On Android, handle content URIs
-      shareOptions.url = '';
-      shareOptions.type = fileUri.type; // You might need to provide the correct MIME type
-      shareOptions.url = fileUri;
-    }
+    console.log(fileUri)
+    await getImageBase64("content://com.android.externalstorage.documents/document/primary%3ADCIM%2FCamera%2FIMG20220831155416.jpg")
     
-    console.log(shareOptions)
+    const shareOptions = {
+      url: files.image1,
+      message: message,
+      // type: 'image/jpg', // Specify the correct MIME type here
+    };
+   
     try {
+      console.log("1")
+      // Linking.openURL(fileUri)
       const result = await Share.open(shareOptions);
+      console.log(JSON.stringify(result))
+      // const result = await Share.share({
+      //   message:
+      //     message,
+      //   title: "Data Transfer"
+      // })
+      console.log("2")
       if (result.action === Share.sharedAction) {
         console.log('File and message shared successfully');
       } else if (result.action === Share.dismissedAction) {
@@ -105,9 +95,9 @@ export default function SharingScreen() {
   };
 
   return (
-    <View style={{backgroundColor:'grey'}}>
+    <View style={{ backgroundColor: 'grey', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>{fileUri ? `${fileUri}`:''}</Text> 
       <Button title="Select File" onPress={handleFilePicker} />
-      {/* <Text>Selected File: {fileUri[0].name}</Text> */}
       <TextInput placeholder="Message" onChangeText={setMessage} />
       <Button title="SHARE" onPress={handleShare} />
     </View>
