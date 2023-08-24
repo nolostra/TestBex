@@ -16,7 +16,7 @@ export default function SharingScreen() {
           PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE
          
         )
-        console.log( )
+        console.log("inside of useEffect")
         // const granted = await PermissionsAndroid.request(
         //   PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
         //   {
@@ -27,9 +27,9 @@ export default function SharingScreen() {
         //     buttonPositive: 'OK',
         //   }
         // );
-        console.log('granted',granted)
+       
         if (granted == RESULTS.GRANTED) {
-          convertToBase64();
+          console.log('Permission ',granted)
         } else {
           console.log('Permission denied.',granted);
         }
@@ -38,8 +38,32 @@ export default function SharingScreen() {
       }
     };
 
+    checkFilePermissions();
     requestExternalStoragePermission();
   }, []);
+
+  const checkFilePermissions = async () => {
+   
+    const granted = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+    );
+    console.log("11",granted)
+    if (!granted) {
+      console.log("not granted")
+    
+      const granted1 = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message: 'This app needs access to your storage to save files.',
+          buttonPositive: 'OK',
+          buttonNegative: 'Cancel',
+        }
+      );
+      console.log("asked for permissions", granted1)
+    }
+  };
+  
   const handleFilePicker = async () => {
     try {
       const res = await DocumentPicker.pickSingle({
@@ -56,10 +80,10 @@ export default function SharingScreen() {
 
   const getImageBase64 = async (filePath) => {
     try {
-      const fileUri = decodeURIComponent(filePath);
-      console.log('fileUri',fileUri)
-      const response = await RNFetchBlob.fs.readFile(fileUri, 'base64');
-      console.log(response)
+      // const fileUri = decodeURIComponent(filePath);
+      // console.log('fileUri',fileUri)
+      const response = await RNFetchBlob.fs.readFile(filePath, 'base64');
+      console.log("+11",response)
       return response;
     } catch (error) {
       console.error('Error converting to base64:', error);
@@ -71,11 +95,11 @@ export default function SharingScreen() {
       console.log('No file selected.');
       return;
     }
-    console.log(fileUri)
-    await getImageBase64("content://com.android.externalstorage.documents/document/primary%3ADCIM%2FCamera%2FIMG20220831155416.jpg")
-    
+    console.log("key1",fileUri)
+    let resp = await getImageBase64(fileUri)
+    console.log("key",'data:image/png;base64,'+resp.slice(0,20))
     const shareOptions = {
-      url: files.image1,
+      url: 'data:image/png;base64,'+resp,
       message: message,
       // type: 'image/jpg', // Specify the correct MIME type here
     };
