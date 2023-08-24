@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button } from 'react-native';
 import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics'
-import * as LocalAuthentication from 'expo-local-authentication';
-import * as Keychain from 'react-native-keychain';
+// import * as LocalAuthentication from 'expo-local-authentication';
+// import * as Keychain from 'react-native-keychain';
 
 const rnBiometrics = new ReactNativeBiometrics()
-import PinView from 'react-native-pin-view';
+// import PinView from 'react-native-pin-view';
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -31,7 +31,7 @@ export default function LoginScreen({ navigation }) {
           console.log('biometrics failed')
         })
         
-      } else if (pin === '1234') {
+      } else if (inputPin === '1234') {
           navigation.navigate('Sharing');
         }else if (username === 'admin' && password === 'admin') {
           navigation.navigate('Sharing');
