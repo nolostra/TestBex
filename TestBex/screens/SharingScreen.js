@@ -7,6 +7,7 @@ import RNPermissions, { PERMISSIONS, RESULTS } from 'react-native-permissions';
 import RNFS from 'react-native-fs';
 import files from './data'
 export default function SharingScreen() {
+  const [typeFile,setTypeFile] = useState('')
   const [fileUri, setFileUri] = useState('');
   const [message, setMessage] = useState('');
   useEffect(() => {
@@ -69,7 +70,8 @@ export default function SharingScreen() {
       const res = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.allFiles],
       });
-      
+      console.log("file",res)
+      setTypeFile(res.type)
       setFileUri(res.uri);
       console.log(fileUri)
     } catch (error) {
@@ -80,10 +82,7 @@ export default function SharingScreen() {
 
   const getImageBase64 = async (filePath) => {
     try {
-      // const fileUri = decodeURIComponent(filePath);
-      // console.log('fileUri',fileUri)
       const response = await RNFetchBlob.fs.readFile(filePath, 'base64');
-      console.log("+11",response)
       return response;
     } catch (error) {
       console.error('Error converting to base64:', error);
@@ -95,26 +94,16 @@ export default function SharingScreen() {
       console.log('No file selected.');
       return;
     }
-    console.log("key1",fileUri)
     let resp = await getImageBase64(fileUri)
-    console.log("key",'data:image/png;base64,'+resp.slice(0,20))
     const shareOptions = {
-      url: 'data:image/png;base64,'+resp,
+      url: 'data:'+typeFile+';base64,'+resp,
       message: message,
-      // type: 'image/jpg', // Specify the correct MIME type here
+      type: typeFile, // Specify the correct MIME type here
     };
    
     try {
-      console.log("1")
-      // Linking.openURL(fileUri)
       const result = await Share.open(shareOptions);
-      console.log(JSON.stringify(result))
-      // const result = await Share.share({
-      //   message:
-      //     message,
-      //   title: "Data Transfer"
-      // })
-      console.log("2")
+      
       if (result.action === Share.sharedAction) {
         console.log('File and message shared successfully');
       } else if (result.action === Share.dismissedAction) {
