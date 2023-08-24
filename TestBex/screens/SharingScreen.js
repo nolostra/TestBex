@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Linking, PermissionsAndroid } from 'react-native';
+import { View, Text, TextInput, Button, Linking, PermissionsAndroid ,DeviceInfo} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
+import RNPermissions, { PERMISSIONS, RESULTS } from 'react-native-permissions';
 import RNFS from 'react-native-fs';
 import files from './data'
 export default function SharingScreen() {
@@ -11,20 +12,26 @@ export default function SharingScreen() {
   useEffect(() => {
     const requestExternalStoragePermission = async () => {
       try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          {
-            title: 'External Storage Permission',
-            message: 'This app needs access to your external storage to convert the file to base64.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          }
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        const granted = await RNPermissions.request(
+          PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE
+         
+        )
+        console.log( )
+        // const granted = await PermissionsAndroid.request(
+        //   PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        //   {
+        //     title: 'External Storage Permission',
+        //     message: 'This app needs access to your external storage to convert the file to base64.',
+        //     buttonNeutral: 'Ask Me Later',
+        //     buttonNegative: 'Cancel',
+        //     buttonPositive: 'OK',
+        //   }
+        // );
+        console.log('granted',granted)
+        if (granted == RESULTS.GRANTED) {
           convertToBase64();
         } else {
-          console.log('Permission denied.');
+          console.log('Permission denied.',granted);
         }
       } catch (error) {
         console.error('Error requesting permission:', error);
