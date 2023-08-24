@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button } from 'react-native';
 import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics'
-
-
+import * as Keychain from 'react-native-keychain';
+import * as LocalAuthentication from 'expo-local-authentication';
 const rnBiometrics = new ReactNativeBiometrics()
 // import PinView from 'react-native-pin-view';
 
@@ -15,6 +15,9 @@ export default function LoginScreen({ navigation }) {
       const biometryType = await rnBiometrics.isSensorAvailable()
       console.log("b--",BiometryTypes.Biometrics )
       console.log("b--",biometryType.biometryType )
+      const credentials = await Keychain.getGenericPassword();
+    //  console.log( await LocalAuthentication)
+      console.log("creds", credentials)
       if (biometryType.biometryType === BiometryTypes.Biometrics) {
         console.log("b--1", )
        await rnBiometrics.simplePrompt({promptMessage: 'Confirm fingerprint'})
@@ -31,7 +34,7 @@ export default function LoginScreen({ navigation }) {
           console.log('biometrics failed')
         })
         
-      } else if (inputPin === '1234') {
+      } else if (inputPin === credentials.password) {
           navigation.navigate('Sharing');
         }else if (username === 'admin' && password === 'admin') {
           navigation.navigate('Sharing');
