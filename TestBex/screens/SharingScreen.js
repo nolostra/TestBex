@@ -1,29 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button,PermissionsAndroid } from 'react-native';
+import { View, Text, TextInput, Button, } from 'react-native';
+import {check, PERMISSIONS, RESULTS, request} from 'react-native-permissions';
+import RNFileShareIntent from 'react-native-file-share-intent';
 // import { Share } from 'react-native';
 import Share from 'react-native-share';
 import  DocumentPicker from 'react-native-document-picker';
-import RNFetchBlob from 'rn-fetch-blob';
+
 export default function SharingScreen() {
   const [fileUri, setFileUri] = useState('');
   const [message, setMessage] = useState('');
   const requestReadExternalStorage = async () => {
     try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      ]);
-  
-      if (
-        granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED &&
-        granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        // The user has granted permissions, proceed with file picking and handling
-        // Your existing code here
-      } else {
-        // The user denied one or both permissions
-        console.log('Permissions denied');
-      }
+      const granted = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE)
+      const granted2 = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
+      console.log(granted,granted2)
+      // if (
+      //   granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED &&
+      //   granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
+      // ) {
+      //   // The user has granted permissions, proceed with file picking and handling
+      //   // Your existing code here
+      // } else {
+      //   // The user denied one or both permissions
+      //   console.log('Permissions denied');
+      // }
     } catch (err) {
       console.log(err);
     }
@@ -40,18 +40,24 @@ export default function SharingScreen() {
       //output: content://com.android.providers.media.documents/document/image%3A4055
     
       RNFetchBlob.fs
-        .stat(res[0].uri)
-        .then((stats) => {
+        .stat(res.uri)
+        .then(async (stats) => {
           console.log("stats",stats);
           console.log("file:/"+stats.path);
-          let path ="file:/"+stats.path
-          RNFetchBlob.fs.readFile(path, 'base64') // You can specify other encoding types
-          .then((fileData) => {
-            console.log(fileData); // Here you have the file content
-          })
-          .catch((readErr) => {
-            console.log(readErr);
-          });
+          let path ="file:"+stats.path
+          console.log("path === ", path)
+          setFileUri(path);
+          // RNFetchBlob.fs.readFile(path,'base64') // You can specify other encoding types
+          // .then((fileData) => {
+          //   console.log(fileData);
+          //   setFileUri(path); // Here you have the file content
+          // })
+          // .catch((readErr) => {
+          //   console.log(readErr);
+          // });
+
+          const contents = await RNFS.readFile(fileUri, 'base64');
+          console.log(contents)
 
           // setFileUri(stats.path);
      //output: /storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200831-WA0019.jpg
