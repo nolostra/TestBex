@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button } from 'react-native';
 import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics'
+import * as Keychain from 'react-native-keychain';
 // import * as LocalAuthentication from 'expo-local-authentication';
 // import * as Keychain from 'react-native-keychain';
 
@@ -14,6 +15,7 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
       const biometryType = await rnBiometrics.isSensorAvailable()
+      const credentials = await Keychain.getGenericPassword();
       console.log("b--",BiometryTypes.Biometrics )
       if (biometryType.biometryType === BiometryTypes.Biometrics) {
         console.log("b--1", )
@@ -31,8 +33,9 @@ export default function LoginScreen({ navigation }) {
           console.log('biometrics failed')
         })
         
-      } else if (inputPin === '1234') {
-          navigation.navigate('Sharing');
+      } else
+       if (credentials) {
+          navigation.navigate('pinlock');
         }else if (username === 'admin' && password === 'admin') {
           navigation.navigate('Sharing');
         }
@@ -48,12 +51,12 @@ export default function LoginScreen({ navigation }) {
       <TextInput placeholder="Username" onChangeText={setUsername} />
       <TextInput placeholder="Password" secureTextEntry onChangeText={setPassword} />
       {/* <PinView onComplete={(value) => setPin(value)} /> */}
-      <TextInput
+      {/* <TextInput
               placeholder="Enter PIN"
               value={inputPin}
               onChangeText={setInputPin}
               secureTextEntry
-            />
+            /> */}
       <Button title="Login" onPress={handleLogin} />
     </View>
   );
