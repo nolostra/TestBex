@@ -8,6 +8,7 @@ import RNFS from 'react-native-fs';
 import files from './data'
 export default function SharingScreen() {
   const [typeFile,setTypeFile] = useState('')
+  const [fileName, setFileName ] = useState('')
   const [fileUri, setFileUri] = useState('');
   const [message, setMessage] = useState('');
   useEffect(() => {
@@ -71,6 +72,7 @@ export default function SharingScreen() {
         type: [DocumentPicker.types.allFiles],
       });
       console.log("file",res)
+      setFileName(res.name)
       setTypeFile(res.type)
       setFileUri(res.uri);
       console.log(fileUri)
@@ -115,11 +117,18 @@ export default function SharingScreen() {
   };
 
   return (
-    <View style={{ backgroundColor: 'grey', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>{fileUri ? `${fileUri}`:''}</Text> 
-      <Button title="Select File" onPress={handleFilePicker} />
-      <TextInput placeholder="Message" onChangeText={setMessage} />
-      <Button title="SHARE" onPress={handleShare} />
-    </View>
+    <View style={{ backgroundColor: '#121212', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Text style={{ fontSize: 18, marginBottom: 20, color: '#f0f0f0', padding:30 , backgroundColor: fileName ? '#1e1e1e' : '#121212' ,borderRadius: 10, marginHorizontal:20 }}>{fileName ? `Selected File: ${fileName}` : ''}</Text>
+    <Button title="Select File" onPress={handleFilePicker} color="#007AFF" />
+    <TextInput
+      style={{ borderRadius: 10, marginVertical: 20, padding: 15, width: '80%', backgroundColor: '#1e1e1e', fontSize: 16, color: '#f0f0f0' }}
+      placeholder="Message"
+      placeholderTextColor="#888"
+      onChangeText={setMessage}
+      value={message}
+    />
+    <Button title="SHARE" onPress={handleShare} color="#007AFF" />
+  </View>
+
   );
 }

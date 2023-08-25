@@ -12,9 +12,9 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Sharing" component={SharingScreen} />
-        <Stack.Screen name="pinlock" component={PinLockScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Sharing" component={SharingScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="pinlock" component={PinLockScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

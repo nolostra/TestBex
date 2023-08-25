@@ -46,18 +46,13 @@ export default function LoginScreen({ navigation }) {
     
   };
 
-  return (
-    <View style={{backgroundColor:'grey'}}>
-      <TextInput placeholder="Username" onChangeText={setUsername} />
-      <TextInput placeholder="Password" secureTextEntry onChangeText={setPassword} />
-      {/* <PinView onComplete={(value) => setPin(value)} /> */}
-      {/* <TextInput
-              placeholder="Enter PIN"
-              value={inputPin}
-              onChangeText={setInputPin}
-              secureTextEntry
-            /> */}
-      <Button title="Login" onPress={handleLogin} />
+  return ( 
+    <View style={{ backgroundColor: '#121212', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ backgroundColor: '#1e1e1e', borderRadius: 10, padding: 20, width: '80%' }}>
+      <TextInput style={{ borderRadius: 10, marginBottom: 20, textAlign: 'center', padding: 15, backgroundColor: '#333', color: '#f0f0f0', fontSize: 16 }} placeholder="Username" placeholderTextColor="#999" onChangeText={setUsername} />
+      <TextInput style={{ borderRadius: 10, marginBottom: 20, textAlign: 'center', padding: 15, backgroundColor: '#333', color: '#f0f0f0', fontSize: 16 }} placeholder="Password" placeholderTextColor="#999" secureTextEntry onChangeText={setPassword} />
+      <Button title="Login" onPress={handleLogin} color="#007AFF" />
     </View>
+  </View>
   );
 }
